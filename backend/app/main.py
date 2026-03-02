@@ -9,6 +9,9 @@ settings = get_settings()
 app = FastAPI(
     title="Proof Human Presence API",
     version="0.1.0",
+    docs_url="/swagger",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 app.add_middleware(
