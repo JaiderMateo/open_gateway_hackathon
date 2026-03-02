@@ -12,7 +12,8 @@ from app.schemas.geofence import (
     GeofenceSubscriptionResponse,
 )
 from app.schemas.kyc import KycFillInRequest, KycMatchRequest, KycTenureRequest
-from app.schemas.location import LocationVerifyRequest
+from app.schemas.location import LocationVerifyRequest, LocationVerifyResponse
+from app.schemas.location_retrieve import LocationRetrieveRequest
 from app.schemas.sim_swap import SimSwapCheckRequest, SimSwapDateRequest
 from app.services.nac.device_swap_service import DeviceSwapService
 from app.services.nac.geofence_service import GeofenceService
@@ -88,6 +89,27 @@ def location_verify(payload: LocationVerifyRequest) -> dict[str, Any]:
         radius_m=payload.radius_m,
     )
     return verified
+
+
+@router.post("/nac/location/verify-defaults")
+def location_verify_defaults() -> dict[str, Any]:
+    """Verify location using default parameters from environment"""
+    verified = location_service.verify_location()
+    return verified
+
+
+@router.post("/nac/location/retrieve")
+def location_retrieve(payload: LocationRetrieveRequest) -> dict[str, Any]:
+    """Retrieve device location"""
+    location_data = location_service.retrieve_location(payload.phone_number, payload.max_age)
+    return location_data
+
+
+@router.post("/nac/location/retrieve-defaults")
+def location_retrieve_defaults() -> dict[str, Any]:
+    """Retrieve device location using default phone number"""
+    location_data = location_service.retrieve_location()
+    return location_data
 
 
 @router.get("/nac/geofence/subscriptions", response_model=GeofenceSubscriptionListResponse)

@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     nac_token: str
     rapidapi_key: str
     rapidapi_base_url: str = "https://network-as-code.p-eu.rapidapi.com"
+    default_phone_number: str
+    default_latitude: float
+    default_longitude: float
+    default_radius_m: int
     app_env: str = "dev"
     api_prefix: str = "/api/v1"
 
