@@ -11,7 +11,8 @@ class GeofenceService:
     def __init__(self) -> None:
         settings = get_settings()
         self.api_key = settings.rapidapi_key
-        self.base_url = "https://network-as-code.p-eu.rapidapi.com/geofencing-subscriptions/v0.3"
+        self.base_url = settings.rapidapi_base_url
+        self.api_path = "/geofencing-subscriptions/v0.3"
         self.headers = {
             "x-rapidapi-key": self.api_key,
             "x-rapidapi-host": "network-as-code.nokia.rapidapi.com",
@@ -25,7 +26,7 @@ class GeofenceService:
         payload: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         try:
-            url = f"{self.base_url}{endpoint}"
+            url = f"{self.base_url}{self.api_path}{endpoint}"
             
             if method.upper() == "GET":
                 response = requests.get(url, headers=self.headers)

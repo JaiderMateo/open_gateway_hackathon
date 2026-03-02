@@ -1,12 +1,9 @@
+from typing import Any
+
 from fastapi import APIRouter
 
 from app.core.config import get_settings
-from app.schemas.device_swap import (
-    DeviceSwapCheckRequest,
-    DeviceSwapCheckResponse,
-    DeviceSwapDateRequest,
-    DeviceSwapDateResponse,
-)
+from app.schemas.device_swap import DeviceSwapCheckRequest, DeviceSwapDateRequest
 from app.schemas.health import HealthResponse
 from app.schemas.geofence import (
     GeofenceSubscriptionDeleteResponse,
@@ -14,19 +11,9 @@ from app.schemas.geofence import (
     GeofenceSubscriptionRequest,
     GeofenceSubscriptionResponse,
 )
-from app.schemas.kyc import (
-    KycFillInRequest,
-    KycFillInResponse,
-    KycMatchRequest,
-    KycTenureRequest,
-)
-from app.schemas.location import LocationVerifyRequest, LocationVerifyResponse
-from app.schemas.sim_swap import (
-    SimSwapCheckRequest,
-    SimSwapCheckResponse,
-    SimSwapDateRequest,
-    SimSwapDateResponse,
-)
+from app.schemas.kyc import KycFillInRequest, KycMatchRequest, KycTenureRequest
+from app.schemas.location import LocationVerifyRequest
+from app.schemas.sim_swap import SimSwapCheckRequest, SimSwapDateRequest
 from app.services.nac.device_swap_service import DeviceSwapService
 from app.services.nac.geofence_service import GeofenceService
 from app.services.nac.kyc_service import KycService
@@ -47,78 +34,60 @@ def health_check() -> HealthResponse:
     return HealthResponse(status="ok", env=settings.app_env)
 
 
-@router.post("/nac/device-swap/date", response_model=DeviceSwapDateResponse)
-def device_swap_date(payload: DeviceSwapDateRequest) -> DeviceSwapDateResponse:
+@router.post("/nac/device-swap/date")
+def device_swap_date(payload: DeviceSwapDateRequest) -> dict[str, Any]:
     swap_date = device_swap_service.get_swap_date(payload.phone_number)
-    return DeviceSwapDateResponse(
-        phone_number=payload.phone_number,
-        device_swap_date=swap_date,
-    )
+    return swap_date
 
 
-@router.post("/nac/device-swap/check", response_model=DeviceSwapCheckResponse)
-def device_swap_check(payload: DeviceSwapCheckRequest) -> DeviceSwapCheckResponse:
+@router.post("/nac/device-swap/check")
+def device_swap_check(payload: DeviceSwapCheckRequest) -> dict[str, Any]:
     swapped = device_swap_service.check_swap(
         phone_number=payload.phone_number,
         max_age_hours=payload.max_age_hours,
     )
-    return DeviceSwapCheckResponse(
-        phone_number=payload.phone_number,
-        max_age_hours=payload.max_age_hours,
-        swapped_recently=swapped,
-    )
+    return swapped
 
 
-@router.post("/nac/sim-swap/date", response_model=SimSwapDateResponse)
-def sim_swap_date(payload: SimSwapDateRequest) -> SimSwapDateResponse:
+@router.post("/nac/sim-swap/date")
+def sim_swap_date(payload: SimSwapDateRequest) -> dict[str, Any]:
     swap_date = sim_swap_service.get_swap_date(payload.phone_number)
-    return SimSwapDateResponse(phone_number=payload.phone_number, sim_swap_date=swap_date)
+    return swap_date
 
 
-@router.post("/nac/sim-swap/check", response_model=SimSwapCheckResponse)
-def sim_swap_check(payload: SimSwapCheckRequest) -> SimSwapCheckResponse:
+@router.post("/nac/sim-swap/check")
+def sim_swap_check(payload: SimSwapCheckRequest) -> dict[str, Any]:
     swapped = sim_swap_service.check_swap(payload.phone_number, payload.max_age_hours)
-    return SimSwapCheckResponse(
-        phone_number=payload.phone_number,
-        max_age_hours=payload.max_age_hours,
-        swapped_recently=swapped,
-    )
+    return swapped
 
 
-@router.post("/nac/kyc/fill-in", response_model=KycFillInResponse)
-def kyc_fill_in(payload: KycFillInRequest) -> KycFillInResponse:
+@router.post("/nac/kyc/fill-in")
+def kyc_fill_in(payload: KycFillInRequest) -> dict[str, Any]:
     customer_info = kyc_service.fill_in(payload.phone_number)
-    return KycFillInResponse(phone_number=payload.phone_number, customer_info=customer_info)
+    return customer_info
 
 
 @router.post("/nac/kyc/match")
-def kyc_match(payload: KycMatchRequest) -> dict[str, str]:
-    kyc_service.match(payload.phone_number)
-    return {"status": "ok"}
+def kyc_match(payload: KycMatchRequest) -> dict[str, Any]:
+    match_result = kyc_service.match(payload.phone_number)
+    return match_result
 
 
 @router.post("/nac/kyc/tenure")
-def kyc_tenure(payload: KycTenureRequest) -> dict[str, str]:
-    kyc_service.tenure(payload.phone_number)
-    return {"status": "ok"}
+def kyc_tenure(payload: KycTenureRequest) -> dict[str, Any]:
+    tenure_result = kyc_service.tenure(payload.phone_number)
+    return tenure_result
 
 
-@router.post("/nac/location/verify", response_model=LocationVerifyResponse)
-def location_verify(payload: LocationVerifyRequest) -> LocationVerifyResponse:
+@router.post("/nac/location/verify")
+def location_verify(payload: LocationVerifyRequest) -> dict[str, Any]:
     verified = location_service.verify_location(
         phone_number=payload.phone_number,
         declared_lat=payload.declared_lat,
         declared_lon=payload.declared_lon,
         radius_m=payload.radius_m,
     )
-    return LocationVerifyResponse(
-        phone_number=payload.phone_number,
-        declared_lat=payload.declared_lat,
-        declared_lon=payload.declared_lon,
-        radius_m=payload.radius_m,
-        verified=verified,
-        message="Location verification result",
-    )
+    return verified
 
 
 @router.get("/nac/geofence/subscriptions", response_model=GeofenceSubscriptionListResponse)

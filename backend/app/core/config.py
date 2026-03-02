@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     nac_token: str
     rapidapi_key: str
+    rapidapi_base_url: str = "https://network-as-code.p-eu.rapidapi.com"
     app_env: str = "dev"
     api_prefix: str = "/api/v1"
 
