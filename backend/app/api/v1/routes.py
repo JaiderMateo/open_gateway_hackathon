@@ -8,6 +8,12 @@ from app.schemas.device_swap import (
     DeviceSwapDateResponse,
 )
 from app.schemas.health import HealthResponse
+from app.schemas.geofence import (
+    GeofenceSubscriptionDeleteResponse,
+    GeofenceSubscriptionListResponse,
+    GeofenceSubscriptionRequest,
+    GeofenceSubscriptionResponse,
+)
 from app.schemas.kyc import (
     KycFillInRequest,
     KycFillInResponse,
@@ -22,6 +28,7 @@ from app.schemas.sim_swap import (
     SimSwapDateResponse,
 )
 from app.services.nac.device_swap_service import DeviceSwapService
+from app.services.nac.geofence_service import GeofenceService
 from app.services.nac.kyc_service import KycService
 from app.services.nac.location_service import LocationService
 from app.services.nac.sim_swap_service import SimSwapService
@@ -31,6 +38,7 @@ device_swap_service = DeviceSwapService()
 sim_swap_service = SimSwapService()
 kyc_service = KycService()
 location_service = LocationService()
+geofence_service = GeofenceService()
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -111,3 +119,31 @@ def location_verify(payload: LocationVerifyRequest) -> LocationVerifyResponse:
         verified=verified,
         message="Location verification result",
     )
+
+
+@router.get("/nac/geofence/subscriptions", response_model=GeofenceSubscriptionListResponse)
+def get_geofence_subscriptions() -> GeofenceSubscriptionListResponse:
+    """Retrieve all geofencing subscriptions"""
+    subscriptions_data = geofence_service.get_subscription_list()
+    return GeofenceSubscriptionListResponse(subscriptions=subscriptions_data)
+
+
+@router.post("/nac/geofence/subscriptions", response_model=GeofenceSubscriptionResponse)
+def create_geofence_subscription(payload: GeofenceSubscriptionRequest) -> GeofenceSubscriptionResponse:
+    """Create a new geofencing subscription"""
+    subscription_data = geofence_service.create_subscription(payload.model_dump(by_alias=True))
+    return GeofenceSubscriptionResponse(**subscription_data)
+
+
+@router.get("/nac/geofence/subscriptions/{subscription_id}", response_model=GeofenceSubscriptionResponse)
+def get_geofence_subscription(subscription_id: str) -> GeofenceSubscriptionResponse:
+    """Retrieve a specific geofencing subscription"""
+    subscription_data = geofence_service.get_subscription(subscription_id)
+    return GeofenceSubscriptionResponse(**subscription_data)
+
+
+@router.delete("/nac/geofence/subscriptions/{subscription_id}", response_model=GeofenceSubscriptionDeleteResponse)
+def delete_geofence_subscription(subscription_id: str) -> GeofenceSubscriptionDeleteResponse:
+    """Delete a geofencing subscription"""
+    geofence_service.delete_subscription(subscription_id)
+    return GeofenceSubscriptionDeleteResponse(subscriptionId=subscription_id)
