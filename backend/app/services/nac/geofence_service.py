@@ -58,4 +58,12 @@ class GeofenceService:
 
     def delete_subscription(self, subscription_id: str) -> dict[str, Any]:
         """Delete a geofencing subscription"""
-        return self._make_request("DELETE", f"/subscriptions/{subscription_id}", {})
+        try:
+            url = f"{self.base_url}{self.api_path}/subscriptions/{subscription_id}"
+            response = requests.delete(url, headers=self.headers, json={})
+            response.raise_for_status()
+            return {"status": "deleted", "subscriptionId": subscription_id}
+        except requests.exceptions.RequestException as exc:
+            raise UpstreamServiceError(f"Geofence API error: {exc}") from exc
+        except Exception as exc:
+            raise UpstreamServiceError(f"Geofence service error: {exc}") from exc

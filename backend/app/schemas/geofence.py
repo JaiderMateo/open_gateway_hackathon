@@ -29,7 +29,7 @@ class GeofenceSubscriptionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     protocol: Literal["HTTP"]
-    sink: HttpUrl
+    sink: str  # Changed from HttpUrl to str for testing
     types: list[Literal["org.camaraproject.geofencing-subscriptions.v0.area-entered"]]
     config: GeofenceConfig
 
