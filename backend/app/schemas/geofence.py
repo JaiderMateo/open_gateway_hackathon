@@ -3,14 +3,19 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
+class GeofenceCenter(BaseModel):
+    latitude: float
+    longitude: float
+
+
 class GeofenceArea(BaseModel):
-    area_type: Literal["CIRCLE"] = Field(alias="areaType")
-    center: dict[str, float]
-    radius: int
+    area_type: Literal["CIRCLE", "POI"] = Field(alias="areaType")
+    center: GeofenceCenter | None = None
+    radius: int | None = None
 
 
 class GeofenceDevice(BaseModel):
-    phone_number: str = Field(pattern=r"^\+[1-9]\d{7,14}$", alias="phoneNumber")
+    phone_number: str | None = Field(default=None, pattern=r"^\+[1-9]\d{4,14}$", alias="phoneNumber")
 
 
 class GeofenceSubscriptionDetail(BaseModel):
@@ -28,16 +33,17 @@ class GeofenceConfig(BaseModel):
 class GeofenceSubscriptionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    protocol: Literal["HTTP"]
-    sink: str  # Changed from HttpUrl to str for testing
-    types: list[Literal["org.camaraproject.geofencing-subscriptions.v0.area-entered"]]
+    protocol: Literal["HTTP", "MQTT3", "MQTT5", "AMQP", "NATS", "KAFKA"]
+    sink: str
+    sink_credential: dict[str, Any] | None = Field(default=None, alias="sinkCredential")
+    types: list[Literal["org.camaraproject.geofencing-subscriptions.v0.area-left", "org.camaraproject.geofencing-subscriptions.v0.area-entered"]] = Field(min_items=1, max_items=1)
     config: GeofenceConfig
 
 
 class GeofenceSubscriptionResponse(BaseModel):
     protocol: Literal["HTTP"]
     sink: HttpUrl
-    types: list[Literal["org.camaraproject.geofencing-subscriptions.v0.area-entered"]]
+    types: list[Literal["org.camaraproject.geofencing-subscriptions.v0.area-left", "org.camaraproject.geofencing-subscriptions.v0.area-entered"]]
     config: GeofenceConfig
     id: str
     starts_at: str = Field(alias="startsAt")
