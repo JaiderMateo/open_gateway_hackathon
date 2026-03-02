@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     nac_token: str
-    rapidapi_key: str = "7824879d1fmshb119c865abc4f6dp1e1091jsn523465580504"
+    rapidapi_key: str
     app_env: str = "dev"
     api_prefix: str = "/api/v1"
 
