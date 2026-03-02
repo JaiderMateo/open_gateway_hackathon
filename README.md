@@ -78,3 +78,5 @@ Si necesitas otro host backend, define `VITE_API_BASE_URL`.
 - KYC Fill-in implementado con:
   - `client.kyc.request_customer_info(phone_number=...)`
 - SIM Swap y Location quedan listos como placeholders con `501 Not Implemented` hasta confirmar método exacto del SDK para tu producto/scope habilitado.
+
+Hola
